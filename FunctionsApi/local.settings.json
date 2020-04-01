@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+  },
+  // Although a * is a bad idea, it is good enough for a proof of concept.
+  "Host": {
+    "CORS": "*"
+  }
+}

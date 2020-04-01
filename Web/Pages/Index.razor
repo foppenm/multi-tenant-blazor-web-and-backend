@@ -1,0 +1,44 @@
+﻿@page "/"
+@inject IAccessTokenProvider AccessTokenProvider
+@inject IConfiguration Configuration
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<AuthorizeView>
+    <Authorized>
+        <button class="btn btn-primary" @onclick="CallAuthenticatedWeb">Click me to see claims</button>
+
+        @foreach (var claim in Claims)
+        {
+            <p>Type: @claim.Type Value: @claim.Value</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p> If you login this will be a button</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+
+    public List<ClaimsResponse> Claims { get; set; } = new List<ClaimsResponse>();
+
+    private async Task CallAuthenticatedWeb()
+    {
+        var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri(Configuration["apiBackend"]);
+        var tokenResult = await this.AccessTokenProvider.RequestAccessToken();
+
+        if (tokenResult.TryGetToken(out var token))
+        {
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token.Value}");
+
+            var res = await httpClient.GetAsync("AuthenticatedFunction");
+            var content = await res.Content.ReadAsStringAsync();
+            Claims = JsonConvert.DeserializeObject<List<ClaimsResponse>>(content);
+        }
+    }
+}
